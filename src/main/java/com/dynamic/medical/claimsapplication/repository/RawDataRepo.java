@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.dynamic.medical.claimsapplication.entity.RawData;
+import com.dynamic.medical.claimsapplication.entity.MedicalData;
 
 /**
  * @author Ayush Kumar Singh
@@ -16,8 +16,8 @@ import com.dynamic.medical.claimsapplication.entity.RawData;
  */
 
 @Repository
-public interface RawDataRepo extends JpaRepository<RawData, Integer> {
-	@Query(value = "SELECT rw.provNum FROM RawData rw WHERE rw.provName =:name")
+public interface RawDataRepo extends JpaRepository<MedicalData, Long> {
+	@Query(value = "SELECT rw.provnum FROM MedicalData rw WHERE rw.provname =:name")
 	String getProviderNumber(@Param("name") String prov_name);
 
 }

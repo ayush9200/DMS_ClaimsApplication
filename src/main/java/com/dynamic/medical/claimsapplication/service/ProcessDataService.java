@@ -6,8 +6,6 @@ package com.dynamic.medical.claimsapplication.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,8 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dynamic.medical.claimsapplication.entity.FileLog;
-import com.dynamic.medical.claimsapplication.entity.RawData;
-import com.dynamic.medical.claimsapplication.modal.RawDataDto;
+import com.dynamic.medical.claimsapplication.entity.MedicalData;
+import com.dynamic.medical.claimsapplication.modal.RawExcelDto;
 import com.dynamic.medical.claimsapplication.repository.RawDataRepo;
 
 
@@ -55,8 +53,8 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	    return true;
 	  }
 	
-	public List<RawDataDto> excelUpload(InputStream is, String fileName, long size, String fileType) throws ParseException {
-		 List<RawDataDto> dataList = new LinkedList<RawDataDto>();
+	public List<RawExcelDto> excelUpload(InputStream is, String fileName, long size, String fileType) throws ParseException {
+		 List<RawExcelDto> dataList = new LinkedList<RawExcelDto>();
 	    try {
 	      Workbook workbook = new XSSFWorkbook(is);
 	      Sheet sheet = workbook.getSheetAt(0);
@@ -69,7 +67,8 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	          rowNumber++;
 	          continue;
 	        }
-	        RawDataDto excelRowData = new RawDataDto();
+	        //RawDataDto excelRowData = new RawDataDto();
+	        RawExcelDto rowData = new RawExcelDto();
 	        Iterator<Cell> cellsInRow = currentRow.iterator();
 	        String value = "";
 	        int cellIdx = 0;
@@ -99,97 +98,134 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
              	//System.out.println("============== > "+value);
 	        	switch (cellIdx) {
 	        	 case 0:
-		          excelRowData.setUclId(Double.valueOf(value));
+	        		 rowData.setPkid(Long.valueOf(value));
 		          break;
 		              
 	            case 1:
-	            	excelRowData.setMrn(value);
+	            	rowData.setFileid(Long.valueOf(value));
 	              break;
 
 	            case 2:
-	              excelRowData.setPtName(value);
+	            	rowData.setFilerow(Integer.parseInt(value));
 	              break;
 
 	            case 3:
-	            	excelRowData.setDeptName(value);
+	            	rowData.setPatientid(Long.valueOf(value));
 	              break;
 
 	            case 4:
-	            	excelRowData.setProvName(value);
+	            	rowData.setMrn(Long.valueOf(value));
 	              break;
 	              
 	            case 5:
-	            	excelRowData.setRefName(value);
+	            	rowData.setCoverage(value);
 	              break;
 
 	            case 6:
-	            	excelRowData.setRefNum(value);
+	            	rowData.setProvname(value);
 	              break;
-
+	              
 	            case 7:
-	            	excelRowData.setAdmitDate(value);
+	            	rowData.setProvnum(Long.valueOf(value));
 	              break;
 
 	            case 8:
-	            	excelRowData.setDxName(value);
+	            	rowData.setRefname(value);
+	              break;
+	              
+	            case 9:
+	            	rowData.setRefnum(Long.valueOf(value));
 	              break;
 
-	            case 9:
-	            	excelRowData.setDxCode(value);
-	              break;
-	              
+
 	            case 10:
-	            	excelRowData.setQty(value);
+	            	rowData.setSvcdate(value);
 	              break;
-	              
+
 	            case 11:
-	            	Date date=new SimpleDateFormat("dd/MM/yyyy").parse(value);
-	            	excelRowData.setDob(date);
+	            	rowData.setProccode(value);
 	              break;
 	              
 	            case 12:
-	            	excelRowData.setCoverage(value);
+	            	rowData.setPercent(Integer.parseInt(value));
 	              break;
 	              
 	            case 13:
-	            	excelRowData.setSex(value);
+	            	//Date date=new SimpleDateFormat("dd/MM/yyyy").parse(value);
+	            	rowData.setAdmitdate(value);
+	              break;
+	              
+	            case 14:
+	            	rowData.setDxcode(Integer.parseInt(value));
+	              break;
+	              
+	            case 15:
+	            	rowData.setIcd10code(value);
 	              break;
 
-	            case 14:
-	            	excelRowData.setStartTime(value);
-	              break;
-	              
-	           case 15:
-	            	excelRowData.setStopTime(value);
-	              break;
-	              
 	            case 16:
-	            	excelRowData.setIcd10Code(value);
+	            	rowData.setStarttime(value);
 	              break;
 	              
-	            case 17:
-	            	Date date2=new SimpleDateFormat("dd/MM/yyyy").parse(value);
-	            	excelRowData.setExpiry(date2);
+	           case 17:
+	            	rowData.setStoptime(value);
 	              break;
 	              
 	            case 18:
-	            	excelRowData.setAddress(value);
+	            	rowData.setBasicunits(Integer.parseInt(value));
 	              break;
 	              
 	            case 19:
-	            	excelRowData.setCity(value);
+	            	//Date date2=new SimpleDateFormat("dd/MM/yyyy").parse(value);
+	            	rowData.setTimeunits(Integer.parseInt(value));
 	              break;
 	              
 	            case 20:
-	            	excelRowData.setProvince(value);
+	            	rowData.setQty(Integer.parseInt(value));
 	              break;
 	              
 	            case 21:
-	            	excelRowData.setPostCode(value);
+	            	rowData.setUnitfee(Float.parseFloat(value));
 	              break;
 	              
 	            case 22:
-	            	excelRowData.setParentName(value);
+	            	rowData.setTotalfee(Float.parseFloat(value));
+	              break;
+	              
+	            case 23:
+	            	rowData.setFacility(Integer.parseInt(value));
+	              break;
+	              
+	            case 24:
+	            	rowData.setSlicode(value);
+	              break;
+	              
+	            case 25:
+	            	rowData.setManreview(value);
+	              break;
+	              
+	            case 26:
+	            	rowData.setClaim(Long.valueOf(value));
+	              break;
+	              
+	            case 27:
+	            	rowData.setStatus(value);
+	              break;
+	              
+	            case 28:
+	            	rowData.setErrcode(value);
+	              break;
+	              
+	            case 29:
+	            	rowData.setPaidamt(Float.parseFloat(value));
+	              break;
+
+	            case 30:
+	            	rowData.setPaidstatus(value);
+	              break;
+
+	            case 31:
+	            	rowData.setPaiddate(value);
 	              break;
 
 	            default:
@@ -198,14 +234,14 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	        	
 	        	cellIdx++;
 	        }	
-	        dataList.add(excelRowData);
+	        dataList.add(rowData);
 	      }
 	      workbook.close();
 	      
 	      //saving
-	     for (RawDataDto excelRows : dataList) {
-			RawData datadtoObject = excelRows._toConvertRawDataEntity();
-			rawDataRepository.save(datadtoObject);
+	     for (RawExcelDto excelRows : dataList) {
+			MedicalData dataObject = excelRows._toConvertRawDataEntity();
+			rawDataRepository.save(dataObject);
 		}
 	     
 	     //saving file details
@@ -218,7 +254,7 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
         java.sql.Date sqlDate = new java.sql.Date(now);
 	     fileLogEntity.setImportDate(sqlDate);
 	     fileLogEntity.setRowCount(rowNumber);
-	     fileLogEntity.setXlsx_cols(22);
+	     fileLogEntity.setXlsx_cols(32);
 	     fileLogEntity.setXlsx_rows(rowNumber);
 	     fileDataRepository.save(fileLogEntity);
 	      
@@ -229,51 +265,55 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	    return dataList;
 	  }
 
-	public List<RawDataDto> getAllRawData(String userRole, String providerNumber) {
-		List<RawDataDto> listOfData = new LinkedList<RawDataDto>();
+	public List<RawExcelDto> getAllRawData(String userRole, String providerNumber) {
+		List<RawExcelDto> listOfData = new LinkedList<RawExcelDto>();
 		try {
-			List<RawData> rawDataList = rawDataRepository.findAll();
-			RawDataDto dtoObject = null;
+			List<MedicalData> rawDataList = rawDataRepository.findAll();
+			RawExcelDto dtoObject = null;
 			Boolean restrictData = (userRole.equalsIgnoreCase("client"))?true:false;
-			for (RawData rawDataEntity : rawDataList) {
+			for (MedicalData rawDataEntity : rawDataList) {
 				if(restrictData) {
-					if(!providerNumber.equals(rawDataEntity.getProvNum())) {
+					if(!rawDataEntity.getProvnum().toString().equals(providerNumber)) {
 						continue;
 					}
 				}
 					
-				dtoObject = new RawDataDto();
-				java.util.Date dobDate = rawDataEntity.getDob();
+				dtoObject = new RawExcelDto();
+				//java.util.Date dobDate = rawDataEntity.getDob();
 				//java.util sqlDateDob = new java.sql.Date(dob.getTime());
-				java.util.Date expDate = rawDataEntity.getExpiry();
-			    dtoObject.setPkId(rawDataEntity.getPkId());
+				//java.util.Date expDate = rawDataEntity.getExpiry();
+			    dtoObject.setPkid(rawDataEntity.getPkid());
+			    dtoObject.setFileid(rawDataEntity.getFileid());
+			    dtoObject.setFilerow(rawDataEntity.getFilerow());
+			    dtoObject.setPatientid(rawDataEntity.getPatientid());
 			    dtoObject.setMrn(rawDataEntity.getMrn());
-			    dtoObject.setPtName(rawDataEntity.getPtName());
-			    dtoObject.setDeptName(rawDataEntity.getDeptName());
-			    dtoObject.setProvName(rawDataEntity.getProvName());
-			    dtoObject.setRefName(rawDataEntity.getRefName());
-			    dtoObject.setAdmitDate(rawDataEntity.getAdmitDate());
-			    dtoObject.setDxName(rawDataEntity.getDxName());
-			    dtoObject.setDxCode(rawDataEntity.getDxCode());
-			    dtoObject.setQty(rawDataEntity.getQty());
-			    dtoObject.setDob(dobDate);
-			    dtoObject.setSex(rawDataEntity.getSex());
-			    dtoObject.setHlthNum(rawDataEntity.getHlthNum());
-			    dtoObject.setVerCode(rawDataEntity.getVerCode());
-			    dtoObject.setExpiry(expDate);
 			    dtoObject.setCoverage(rawDataEntity.getCoverage());
-			    dtoObject.setStartTime(rawDataEntity.getStartTime());
-			    dtoObject.setStopTime(rawDataEntity.getStopTime());
-			    dtoObject.setBillProv(rawDataEntity.getBillProv());
-			    dtoObject.setAddress(rawDataEntity.getAddress());
-			    dtoObject.setCity(rawDataEntity.getCity());
-			    dtoObject.setProvince(rawDataEntity.getProvince());
-			    dtoObject.setPostCode(rawDataEntity.getPostCode());
-			    dtoObject.setParentName(rawDataEntity.getParentName());
-			    dtoObject.setPostCode(rawDataEntity.getPostCode());
-			    dtoObject.setPhone(rawDataEntity.getPhone());
-			    dtoObject.setNotes(rawDataEntity.getNotes());
-			    dtoObject.setUclId(rawDataEntity.getUclId());
+			    dtoObject.setProvname(rawDataEntity.getProvname());
+			    dtoObject.setProvnum(rawDataEntity.getProvnum());
+			    dtoObject.setRefname(rawDataEntity.getRefname());
+			    dtoObject.setRefnum(rawDataEntity.getRefnum());
+			    dtoObject.setSvcdate(rawDataEntity.getSvcdate());
+			    dtoObject.setProccode(rawDataEntity.getProccode());
+			    dtoObject.setPercent(rawDataEntity.getPercent());
+			    dtoObject.setAdmitdate(rawDataEntity.getAdmitdate());
+			    dtoObject.setDxcode(rawDataEntity.getDxcode());
+			    dtoObject.setIcd10code(rawDataEntity.getIcd10code());
+			    dtoObject.setStarttime(rawDataEntity.getStarttime());
+			    dtoObject.setStoptime(rawDataEntity.getStoptime());
+			    dtoObject.setBasicunits(rawDataEntity.getBasicunits());
+			    dtoObject.setTimeunits(rawDataEntity.getTimeunits());
+			    dtoObject.setQty(rawDataEntity.getQty());
+			    dtoObject.setUnitfee(rawDataEntity.getUnitfee());
+			    dtoObject.setTotalfee(rawDataEntity.getTotalfee());
+			    dtoObject.setFacility(rawDataEntity.getFacility());
+			    dtoObject.setSlicode(rawDataEntity.getSlicode());
+			    dtoObject.setManreview(rawDataEntity.getManreview());
+			    dtoObject.setClaim(rawDataEntity.getClaim());
+			    dtoObject.setStatus(rawDataEntity.getStatus());
+			    dtoObject.setErrcode(rawDataEntity.getErrcode());
+			    dtoObject.setPaidamt(rawDataEntity.getPaidamt());
+			    dtoObject.setPaidstatus(rawDataEntity.getPaidstatus());
+			    dtoObject.setPaiddate(rawDataEntity.getPaiddate());
 			    
 			    listOfData.add(dtoObject);
 			}

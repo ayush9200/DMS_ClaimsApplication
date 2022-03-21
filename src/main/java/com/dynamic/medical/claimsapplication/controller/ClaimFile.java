@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dynamic.medical.claimsapplication.login.LoginService;
 import com.dynamic.medical.claimsapplication.modal.RawDataDto;
+import com.dynamic.medical.claimsapplication.modal.RawExcelDto;
 import com.dynamic.medical.claimsapplication.service.ProcessDataService;
 
 /**
@@ -39,9 +40,9 @@ public class ClaimFile {
 	LoginService loginService;
 	
 	@PostMapping("/upload")
-	public List<RawDataDto> getRequest(@RequestParam("excel") MultipartFile file) {
+	public List<RawExcelDto> getRequest(@RequestParam("excel") MultipartFile file) {
 		
-		List<RawDataDto> excelDto = new LinkedList<RawDataDto>();
+		List<RawExcelDto> excelDto = new LinkedList<RawExcelDto>();
 	    if (processDataService.checkIfExcel(file)) {
 	      try {
 	        excelDto = processDataService.excelUpload(file.getInputStream(),file.getOriginalFilename(), file.getSize(), "excel");
@@ -60,8 +61,8 @@ public class ClaimFile {
 	
 	
 	@GetMapping("/rawData")
-	public List<RawDataDto> getRawData() {
-		List<RawDataDto> listOfRawData = new LinkedList<RawDataDto>();
+	public List<RawExcelDto> getRawData() {
+		List<RawExcelDto> listOfRawData = new LinkedList<RawExcelDto>();
 		try {
 			listOfRawData = processDataService.getAllRawData(null, null);
 		} catch (Exception e) {
@@ -80,7 +81,7 @@ public class ClaimFile {
 			@RequestParam("password") String password) {
 		ResponseEntity<Map<String,Object>> response = null;
 		Map<String, String> mapToUser = null;
-		List<RawDataDto> listOfRawData = new LinkedList<RawDataDto>();
+		List<RawExcelDto> listOfRawData = new LinkedList<RawExcelDto>();
 		try {
 			mapToUser = loginService.getLoginCredVerified(username, password);
 			if(mapToUser == null || mapToUser.isEmpty()) 
@@ -102,11 +103,11 @@ public class ClaimFile {
 	
 	@PostMapping("/createUser")
 	public ResponseEntity<String> createUserForLogin(@RequestParam("username") String username, @RequestParam("password") String password,
-			@RequestParam("role") String role, @RequestParam("fullname") String fullName) {
+			@RequestParam("role") String role, @RequestParam("fullname") String fullName, @RequestParam("provnum") String provnum) {
 		ResponseEntity<String> responseBody = null;
 		int resCode = 0;
 		try {
-			resCode = loginService.createUser(username, password, role, fullName);
+			resCode = loginService.createUser(username, password, role, fullName, provnum);
 			if(resCode == 1) 
 				responseBody = new ResponseEntity<String>("SUCCESS", HttpStatus.OK);
 			else

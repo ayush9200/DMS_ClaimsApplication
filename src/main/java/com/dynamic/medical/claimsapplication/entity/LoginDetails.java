@@ -22,6 +22,7 @@ public class LoginDetails {
 	private String fullName;
 	private String username;
 	private String password;
+	private String provnum;
 	private String role;
 	
 	public Integer getLoginId() {
@@ -53,6 +54,12 @@ public class LoginDetails {
 	}
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+	public String getProvnum() {
+		return provnum;
+	}
+	public void setProvnum(String provnum) {
+		this.provnum = provnum;
 	}
 	
 }

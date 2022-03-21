@@ -27,13 +27,14 @@ public class LoginService {
 	@Autowired
 	private RawDataRepo rawDataRepository;
 	
-	public int createUser(String username, String password, String role, String fullName) {
+	public int createUser(String username, String password, String role, String fullName, String provnum) {
 		int res = 0;
 		try {
 			LoginDetails loginEntity = new LoginDetails();
 			loginEntity.setUsername(username);
 			loginEntity.setPassword(password);
 			loginEntity.setFullName(fullName);
+			loginEntity.setProvnum(provnum);
 			
 			if(role.equalsIgnoreCase("admin"))
 				role = RoleType.ADMIN.toString();
@@ -58,8 +59,8 @@ public class LoginService {
 			if(null != loginEntity && loginEntity.getUsername().equalsIgnoreCase(username)) {
 				mapToReturn.put("name", loginEntity.getFullName());
 				
-				String providerNumber = rawDataRepository.getProviderNumber(loginEntity.getFullName());
-				mapToReturn.put("provnum", providerNumber);
+				//String providerNumber = rawDataRepository.getProviderNumber(loginEntity.getFullName());
+				mapToReturn.put("provnum", loginEntity.getProvnum());
 				mapToReturn.put("role", loginEntity.getRole());
 			}
 			
