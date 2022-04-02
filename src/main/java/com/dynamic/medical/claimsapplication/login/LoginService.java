@@ -70,5 +70,27 @@ public class LoginService {
 		return mapToReturn;
 	}
 
+	public int changePassword(String username, String oldPassword, String newPassword) {
+		int res = 0;
+		try {
+			loginRepository.updatePassword(username, oldPassword, newPassword);
+			res = 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	public int deleteUser(String username, String provnum) {
+		int res = 0;
+		try {
+			loginRepository.deleteUser(username, provnum);
+			res = 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
 	
 }

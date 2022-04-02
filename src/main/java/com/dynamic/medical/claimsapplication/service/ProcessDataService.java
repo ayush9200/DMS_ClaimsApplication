@@ -4,11 +4,15 @@
 package com.dynamic.medical.claimsapplication.service;
 
 import java.io.IOException;
+import com.monitorjbl.xlsx.StreamingReader;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -22,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dynamic.medical.claimsapplication.entity.FileLog;
 import com.dynamic.medical.claimsapplication.entity.MedicalData;
+import com.dynamic.medical.claimsapplication.modal.RawDataDto;
 import com.dynamic.medical.claimsapplication.modal.RawExcelDto;
 import com.dynamic.medical.claimsapplication.repository.RawDataRepo;
 
@@ -56,33 +61,54 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	public List<RawExcelDto> excelUpload(InputStream is, String fileName, long size, String fileType) throws ParseException {
 		 List<RawExcelDto> dataList = new LinkedList<RawExcelDto>();
 	    try {
-	      Workbook workbook = new XSSFWorkbook(is);
-	      Sheet sheet = workbook.getSheetAt(0);
-	      Iterator<Row> excelRow = sheet.iterator();
-	      int rowNumber = 0;
-	      while (excelRow.hasNext()) {
-	        Row currentRow = excelRow.next();
+	    	
+	    	
+	    	long startTime = System.nanoTime();
+	    	//InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
+	    	StreamingReader reader = StreamingReader.builder()
+	    	        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
+	    	        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
+	    	        .sheetIndex(0)        // index of sheet to use (defaults to 0)
+	    	        .read(is);            // InputStream or File for XLSX file (required)
+
+	    	int rowNumber = 0;
+	    	System.out.println(" ===============  STARTED AT ========> "+ new Date().getTime());
+	    	for (Row r : reader) {
+	    		//System.out.println(r.getRowNum());
+	    		if (rowNumber < 1) {
+	    			rowNumber++;
+	    			continue;
+	    		}
+	    		RawExcelDto rowData = new RawExcelDto();
+	    		String value = "";
+	    		int cellIdx = 0;
+	    	  for (Cell currentCell : r) {
+	    	   // System.out.println(c.getStringCellValue());
+	   // 	  }
+	   // 	}
+	     // Workbook workbook = new XSSFWorkbook(is);
+	      //Sheet sheet = workbook.getSheetAt(0);
+	      //Iterator<Row> excelRow = sheet.iterator();
+	     // while (excelRow.hasNext()) {
+	      //  Row currentRow = excelRow.next();
 	        // skip header
-	        if (rowNumber < 1) {
-	          rowNumber++;
-	          continue;
-	        }
 	        //RawDataDto excelRowData = new RawDataDto();
-	        RawExcelDto rowData = new RawExcelDto();
-	        Iterator<Cell> cellsInRow = currentRow.iterator();
-	        String value = "";
-	        int cellIdx = 0;
+//	        Iterator<Cell> cellsInRow = currentRow.iterator();
 	       // System.out.println("============= > "+ rowNumber);
-	        while (cellsInRow.hasNext()) {
-	        	Cell currentCell = cellsInRow.next();
-	        	CellType type = currentCell.getCellType();
-                if (type == CellType.STRING) {
+	//        while (cellsInRow.hasNext()) {
+	        	//Cell currentCell = cellsInRow.next();
+	        	//CellType type = currentCell.getCellType();
+                //if (type == CellType.STRING) {
                     value = currentCell.getStringCellValue();
-                } else{
-                	CellType cellType = currentCell.getCellType();
-                	currentCell.setCellType(CellType.STRING);
-                	value = currentCell.getStringCellValue();
-                 	currentCell.setCellType(cellType);
+                    if(value == null || value.isEmpty() || value.contains("******")) {
+                    	cellIdx++;
+                    	continue;
+                    }
+                //} else{
+                	//CellType cellType = currentCell.getCellType();
+                	//currentCell.setCellType(CellType.STRING);
+                	//value = currentCell.getStringCellValue();
+                 	//currentCell.setCellType(cellType);
                  	/*
 					 * if (type == CellType.NUMERIC) {
 					 * 
@@ -93,7 +119,7 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 					 * 
 					 * } else if (type == CellType.BLANK) { value = ""; }
 					 */
-                }
+             //   }
                // System.out.println("============== > "+cellIdx);
              	//System.out.println("============== > "+value);
 	        	switch (cellIdx) {
@@ -235,14 +261,33 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	        	cellIdx++;
 	        }	
 	        dataList.add(rowData);
+	        
+	        if(dataList.size() == 100) {
+	        	ExecutorService es = Executors.newSingleThreadExecutor();
+	        	es.execute(new Runnable() {
+					@Override
+					public void run() {
+						Iterator<RawExcelDto> itr = dataList.iterator(); 
+						while (itr.hasNext()) { 
+							RawExcelDto dto = itr.next(); 
+							MedicalData dataObject = dto._toConvertRawDataEntity();
+							rawDataRepository.save(dataObject);
+							itr.remove();
+							}
+						System.out.println("====== ============== 100 ROWS EXECUTED ======================= ======");
+					}
+				});
+	        	es.shutdown(); 
+	        }
 	      }
-	      workbook.close();
+	   //   workbook.close();
 	      
 	      //saving
 	     for (RawExcelDto excelRows : dataList) {
 			MedicalData dataObject = excelRows._toConvertRawDataEntity();
 			rawDataRepository.save(dataObject);
 		}
+	     System.out.println(" ===============  ENDED AT ========> "+ new Date().getTime());
 	     
 	     //saving file details
 	     FileLog fileLogEntity = new FileLog();
@@ -258,8 +303,12 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	     fileLogEntity.setXlsx_rows(rowNumber);
 	     fileDataRepository.save(fileLogEntity);
 	      
-	    } catch (IOException e) {
+	     long endTime   = System.nanoTime();
+	     long totalTime = endTime - startTime;
+	     System.out.println(" ========================== TOTAL TIME : "+ totalTime + " =============================");
+	    } catch (Exception e) {
 	    	e.printStackTrace();
+	    	System.out.println(e.getMessage());
 	      throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
 	    }
 	    return dataList;
