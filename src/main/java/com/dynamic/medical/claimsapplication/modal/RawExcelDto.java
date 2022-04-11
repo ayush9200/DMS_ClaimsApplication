@@ -250,6 +250,7 @@ public class RawExcelDto {
 	    entity.setProvname(provname);
 	    entity.setProvnum(provnum);
 	    entity.setRefname(refname);
+	    entity.setRefnum(refnum);
 	    entity.setSvcdate(svcdate);
 	    entity.setProccode(proccode);
 	    entity.setPercent(percent);
@@ -270,7 +271,7 @@ public class RawExcelDto {
 	    entity.setStatus(status);
 	    entity.setErrcode(errcode);
 	    entity.setPaidamt(paidamt);
-	    entity.setPaidamt(paidamt);
+	    entity.setPaidstatus(paidstatus);
 	    entity.setPaiddate(paiddate);
 	    
 	   	    return entity ;

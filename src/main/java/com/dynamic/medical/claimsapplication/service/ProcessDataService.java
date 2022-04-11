@@ -100,6 +100,9 @@ public static String TYPE = "application/vnd.openxmlformats-officedocument.sprea
 	        	//CellType type = currentCell.getCellType();
                 //if (type == CellType.STRING) {
                     value = currentCell.getStringCellValue();
+                    if(cellIdx == 9) {
+                    	System.out.println("................+++++++"+value);
+                    }
                     if(value == null || value.isEmpty() || value.contains("******")) {
                     	cellIdx++;
                     	continue;
